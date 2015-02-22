@@ -30,6 +30,7 @@ permissionDefaults = {
  ,"webcam": False
  ,"access-working-directory": False
  ,"allow-network-access": False
+ ,"ports" : []
  # Liberal permissions
  ,"x11": False
  ,"graphics-card": False

@@ -63,7 +63,7 @@ class Permissions(collections.OrderedDict,subuserlib.classes.userOwnedObject.Use
       if self["inherit-timezone"]:
         print("  Can find out your current timezone.")
 
-    moderatePermissions = ["user-dirs","sound-card","webcam","access-working-directory","allow-network-access"]
+    moderatePermissions = ["user-dirs","sound-card","webcam","access-working-directory","allow-network-access","ports"]
     if areAnyOfThesePermitted(moderatePermissions):
       print(" Moderate permissions(These are probably safe):")
       if not self["user-dirs"]==[]:
@@ -76,6 +76,8 @@ class Permissions(collections.OrderedDict,subuserlib.classes.userOwnedObject.Use
         print("  Can access the directory from which it was launched.")
       if self["allow-network-access"]:
         print("  Can access the network/internet.")
+      if self["ports"]:
+        print("  Ports are forwarded to this application, and mapped to different ports")
 
     liberalPermissions = ["x11","graphics-card","serial-devices","system-dbus","as-root"]
     if areAnyOfThesePermitted(liberalPermissions):

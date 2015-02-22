@@ -67,6 +67,14 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
       soundArgs += ["--device=/dev/dsp/"+device for device in os.listdir("/dev/dsp")]
     return soundArgs
   
+
+  def getPortArgs(self, ports):
+    """ Get the port mapping permissions 
+    """
+    portArgs = []
+    for port in ports:      
+      portArgs += ["--publish=%s"%(port)]
+    return portArgs
   def getPermissionFlagDict(self):
     """
     This is a dictionary mapping permissions to functions which when given the permission's values return docker run flags.
@@ -82,6 +90,7 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
      ("webcam", lambda p: ["--device=/dev/"+device for device in os.listdir("/dev/") if device.startswith("video")] if p else []),
      ("access-working-directory", lambda p: ["-v="+os.getcwd()+":/pwd:rw","--workdir=/pwd"] if p else ["--workdir="+self.getSubuser().getDockersideHome()]),
      ("allow-network-access", lambda p: ["--net=bridge","--dns=8.8.8.8"] if p else ["--net=none"]),
+     ("ports", lambda ports: self.getPortArgs(ports) if ports else []),
      # Liberal permissions
      ("x11", lambda p: ["-e","DISPLAY=unix"+os.environ['DISPLAY'],"-v=/tmp/.X11-unix:/tmp/.X11-unix:rw"] if p else []),
      ("graphics-card", lambda p: ["--device=/dev/dri/"+device for device in os.listdir("/dev/dri")] if p else []),
