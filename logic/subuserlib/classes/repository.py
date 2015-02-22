@@ -97,6 +97,8 @@ class Repository(dict,subuserlib.classes.userOwnedObject.UserOwnedObject):
     """
     imageNames = filter(lambda f: os.path.isdir(os.path.join(self.getSubuserRepositoryRoot(),f)) and not f == ".git",os.listdir(self.getSubuserRepositoryRoot()))
     for imageName in imageNames:
+      if imageName[0] =='.':
+        continue
       self[imageName] = (subuserlib.classes.imageSource.ImageSource(self.getUser(),self,imageName))
 
   def checkoutGitCommit(self,gitCommitHash):
