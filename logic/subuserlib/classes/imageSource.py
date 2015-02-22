@@ -123,7 +123,7 @@ class ImageSource(subuserlib.classes.userOwnedObject.UserOwnedObject,subuserlib.
     else:
       raise subuserlib.classes.dockerDaemon.ImageBuildException("This ImageSource does not build from a SubuserImagefile.")
 
-  def generateDockerfileConents(self,parent=None):
+  def generateDockerfileContents(self,parent=None):
     """
     Returns a string representing the Dockerfile that is to be used to build this ImageSource.
     """
@@ -141,7 +141,12 @@ class ImageSource(subuserlib.classes.userOwnedObject.UserOwnedObject,subuserlib.
      Returns the dependency of this ImageSource as a ImageSource.
      Or None if there is no dependency.
     """
-    SubuserImagefileContents = self.getSubuserImagefileContents()
+    try:
+      SubuserImagefileContents = self.getSubuserImagefileContents()
+    except:
+      print("Warning cannot satisfy dependencies of script built images automatically")
+      return None
+
     lineNumber=0
     for line in SubuserImagefileContents.split("\n"):
       if line.startswith("FROM-SUBUSER-IMAGE"):
