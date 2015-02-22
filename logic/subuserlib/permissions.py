@@ -7,7 +7,7 @@ Module used for the loading and saving of permissions.json files. Contains the d
 """
 
 #external imports
-import json,collections,sys,os
+import json,collections,sys,os,json_minify
 #internal imports
 # import ...
 allImagesMustHavePermissions = "All subuser images must have a permissions.json file as defined by the permissions.json standard: <https://github.com/subuser-security/subuser/blob/master/docs/permissions-dot-json-file-format.md>"
@@ -48,7 +48,7 @@ def getPermissions(permissionsFilePath):
   # read permissions.json file
   with open(permissionsFilePath, 'r') as file_f:
     try:
-      permissions=json.load(file_f, object_pairs_hook=collections.OrderedDict)
+      permissions=json.loads(json_minify.json_minify(file_f.read()), object_pairs_hook=collections.OrderedDict)
     except ValueError:
       sys.exit(permissionsFilePath+" is not valid json.  "+allImagesMustHavePermissions)
     # Validate that the permissions are supported by this version of subuser.
