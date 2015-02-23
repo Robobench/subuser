@@ -66,7 +66,21 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
       soundArgs += ["--volume=/dev/dsp:/dev/dsp"]
       soundArgs += ["--device=/dev/dsp/"+device for device in os.listdir("/dev/dsp")]
     return soundArgs
-  
+
+  def getGraphicsArgs(self):
+    graphicsArgs = []
+    cardInd = 0
+    # Get DRI devices
+    graphicsArgs += ["--device=/dev/dri/"+device for device in os.listdir("/dev/dri")]
+    
+    # Get NVidia devices
+    while true:
+      if os.path.exists("/dev/nvidia%i"%(cardInd)):
+        graphicsStr = "/dev/nvidia%i"%(cardInd)
+        graphicsArgs += ["--dev=%s:%s"%(graphicsStr,graphitcsStr)]
+        break
+
+    return graphicsArgs
 
   def getPortArgs(self, ports):
     """ Get the port mapping permissions 
@@ -93,7 +107,7 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
      ("ports", lambda ports: self.getPortArgs(ports) if ports else []),
      # Liberal permissions
      ("x11", lambda p: ["-e","DISPLAY=unix"+os.environ['DISPLAY'],"-v=/tmp/.X11-unix:/tmp/.X11-unix:rw"] if p else []),
-     ("graphics-card", lambda p: ["--device=/dev/dri/"+device for device in os.listdir("/dev/dri")] if p else []),
+     ("graphics-card", lambda p: self.getGraphicsArgs() if p else []),
      ("serial-devices", lambda sd: ["--device=/dev/"+device for device in self.getSerialDevices()] if sd else []),
      ("system-dbus", lambda dbus: ["--volume=/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"] if dbus else []),
      ("as-root", lambda root: ["--user=0"] if root else ["--user="+str(os.getuid())]),
