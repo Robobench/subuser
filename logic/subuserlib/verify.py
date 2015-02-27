@@ -15,7 +15,8 @@ This is one of the most important modules in subuser.  This module has one funct
 #external imports
 import shutil,os
 #internal imports
-import subuserlib.install
+import robobenchlib.install
+import subuserlib.classes.dockerDaemon
 
 def verify(user):
   """
@@ -46,7 +47,7 @@ def ensureImagesAreInstalledAndUpToDate(user):
   for _,subuser in user.getRegistry().getSubusers().items():
     if not subuser.locked(): # TODO: We should install images for locked subusers if their images have dissappered.
       try:
-        subuserlib.install.ensureSubuserImageIsInstalledAndUpToDate(subuser)
+        robobenchlib.install.ensureSubuserImageIsInstalledAndUpToDate(subuser)
       except subuserlib.classes.dockerDaemon.ImageBuildException as e:
         user.getRegistry().log(str(e))
         subusersWhosImagesFailedToBuild.append(subuser)

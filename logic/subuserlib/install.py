@@ -85,7 +85,8 @@ def installImage(imageSource, useCache=False,parent=None):
 
   subuserSetupDockerFile = ""
   subuserSetupDockerFile += "FROM "+imageId+"\n"
-  subuserSetupDockerFile += "RUN mkdir /subuser ; echo "+str(uuid.uuid4())+" > /subuser/uuid\n" # This ensures that all images have unique Ids.  Even images that are otherwise the same.
+  subuserSetupDockerFile += "USER root \n"
+  #subuserSetupDockerFile += "RUN mkdir -p /subuser ; echo "+str(uuid.uuid4())+" > /subuser/uuid\n" # This ensures that all images have unique Ids.  Even images that are otherwise the same.\
   imageId = imageSource.getUser().getDockerDaemon().build(dockerfile=subuserSetupDockerFile)
   
   imageSource.getUser().getInstalledImages()[imageId] = subuserlib.classes.installedImage.InstalledImage(imageSource.getUser(),imageId,imageSource.getName(),imageSource.getRepository().getName(),lastUpdateTime)

@@ -10,6 +10,8 @@ A subuser is an entity that runs within a Docker container and has a home direct
 import os,stat,json
 #internal imports
 import subuserlib.classes.userOwnedObject,subuserlib.classes.imageSource,subuserlib.classes.permissions,subuserlib.classes.describable,subuserlib.runReadyImages,subuserlib.classes.runtime
+import subuserlib.runReadyImages
+
 
 class Subuser(subuserlib.classes.userOwnedObject.UserOwnedObject,subuserlib.classes.describable.Describable):
   __name = None
@@ -73,7 +75,7 @@ class Subuser(subuserlib.classes.userOwnedObject.UserOwnedObject,subuserlib.clas
       os.makedirs(pathToCurrentImagesRuntimeCacheDir)
     except OSError:
       pass
-    runReadyImageId = subuserlib.runReadyImages.buildRunReadyImageForSubuser(self)
+    runReadyImageId = robobenchlib.runReadyImages.buildRunReadyImageForSubuser(self)
     runtimeInfo = {}
     runtimeInfo['run-ready-image-id'] = runReadyImageId
     with open(pathToRuntimeCacheFile,mode='w') as runtimeCacheFileHandle:
