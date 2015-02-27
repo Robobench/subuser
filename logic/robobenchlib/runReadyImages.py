@@ -18,7 +18,6 @@ def runReadyImageHostData(subuserToRun):
     dockerfileContents = subuserlib.runReadyImages.generateImagePreparationDockerfile(subuserToRun)
     dockerfileContents += 'USER %s \n'%(str(os.getuid()))
     dockerfileContents += "ADD hostdata /subuser/hostdata \n"
-    dockerfileContents += "RUN bash /subuser/hostdata/ \n"
     return dockerfileContents
 
 def runReadyImageScripts(imageId):
@@ -28,11 +27,14 @@ def runReadyImageScripts(imageId):
     :return:
     """
     dockerfileContents =  "From " + imageId + " \n"
-    dockerfileContents += "ADD robobench /subuser/dockerside-scripts"
-    dockerfileContents += "USER root"
-    dockerfileContents += "RUN bash /subuser/dockerside-scripts/install_client_gpu.bash"
+    dockerfileContents += "ADD ./robobench /subuser/ \n"
+    dockerfileContents += "USER root \n"
+    dockerfileContents += "RUN bash /subuser/install_client_gpu.bash \n"
     dockerfileContents += "USER %s \n"%(str(os.getuid()))
+    return dockerfileContents
 
 def buildRunReadyImageForSubuser(subuserToRun):
-    imageId = subuserToRun.getUser().getDockerDaemon().build(robobenchlib.paths.getRobobenchHostDataCacheDir(),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun))
-    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(subuserToRun))
+    imageId = subuserToRun.getUser().getDockerDaemon().build(os.path.dirname(robobenchlib.paths.getRobobenchHostDataCacheDir()),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun))
+
+    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=False,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(imageId))
+    return imageId
