@@ -5,7 +5,7 @@ import robobenchlib.paths
 import subuserlib.subprocessExtras
 import subuserlib.classes.user
 import subuserlib.classes.fileBackedObject, subuserlib.classes.userOwnedObject
-import json, json_minify
+import json, subuserlib.json_minify
 
 
 class HostMachine(collections.OrderedDict, subuserlib.classes.fileBackedObject.FileBackedObject, subuserlib.classes.userOwnedObject.UserOwnedObject):
