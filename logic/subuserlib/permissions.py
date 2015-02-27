@@ -34,6 +34,7 @@ permissionDefaults = {
  # Liberal permissions
  ,"x11": False
  ,"graphics-card": False
+ ,"use-host-descriptor": False
  ,"serial-devices":False
  ,"system-dbus": False
  ,"as-root": False

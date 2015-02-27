@@ -79,7 +79,7 @@ class Permissions(collections.OrderedDict,subuserlib.classes.userOwnedObject.Use
       if self["ports"]:
         print("  Ports are forwarded to this application, and mapped to different ports")
 
-    liberalPermissions = ["x11","graphics-card","serial-devices","system-dbus","as-root"]
+    liberalPermissions = ["x11","graphics-card","serial-devices","system-dbus","as-root", "use-host-descriptor"]
     if areAnyOfThesePermitted(liberalPermissions):
       print(" Liberal permissions(These may pose a security risk):")
       if self["x11"]:
@@ -90,6 +90,8 @@ class Permissions(collections.OrderedDict,subuserlib.classes.userOwnedObject.Use
         print(" Can access serial devices such as programable micro-controlers and modems.")
       if self["system-dbus"]:
         print(" Can talk to the system dbus daemon.")
+      if self["use-host-descriptor"]:
+          print(" Will get information about the X11, GPU, and other information from the host and make sure the client is compatible")
     anarchisticPermissions = ["privileged"]
     if areAnyOfThesePermitted(anarchisticPermissions):
       print("WARNING: this subuser has full access to your system when run.")
