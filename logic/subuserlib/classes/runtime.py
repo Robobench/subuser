@@ -70,15 +70,14 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
   def getGraphicsArgs(self):
     graphicsArgs = []
     cardInd = 0
-    # Get DRI devices
     graphicsArgs += ["--device=/dev/dri/"+device for device in os.listdir("/dev/dri")]
     
     # Get NVidia devices
-    while true:
-      if os.path.exists("/dev/nvidia%i"%(cardInd)):
-        graphicsStr = "/dev/nvidia%i"%(cardInd)
-        graphicsArgs += ["--dev=%s:%s"%(graphicsStr,graphitcsStr)]
-        break
+    while True:
+        if os.path.exists("/dev/nvidia%i"%(cardInd)):
+            graphicsStr = "/dev/nvidia%i"%(cardInd)
+            graphicsArgs += ["--dev=%s:%s"%(graphicsStr,graphicsStr)]
+            break
 
     return graphicsArgs
 
@@ -89,13 +88,20 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
     for port in ports:      
       portArgs += ["--publish=%s"%(port)]
     return portArgs
+  
+  def getHomeArgs(self, home):
+    homeArgs = []
+    if home:
+      homeArgs = ["-v="+self.getSubuser().getHomeDirOnHost()+":"+self.getSubuser().getDockersideHome()+":rw","-e","HOME="+self.getSubuser().getDockersideHome() ]
+    return homeArgs
+
   def getPermissionFlagDict(self):
     """
     This is a dictionary mapping permissions to functions which when given the permission's values return docker run flags.
     """
     return collections.OrderedDict([
      # Conservative permissions
-     ("stateful-home", lambda p : ["-v="+self.getSubuser().getHomeDirOnHost()+":"+self.getSubuser().getDockersideHome()+":rw","-e","HOME="+self.getSubuser().getDockersideHome()] if p else ["-e","HOME="+self.getSubuser().getDockersideHome()]),
+     ("stateful-home", lambda p : self.getHomeArgs(p)),
      ("inherit-locale", lambda p : self.passOnEnvVar("LANG")+self.passOnEnvVar("LANGUAGE") if p else []),
      ("inherit-timezone", lambda p : self.passOnEnvVar("TZ")+["-v=/etc/localtime:/etc/localtime:r"] if p else []),
      # Moderate permissions
@@ -113,7 +119,8 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
      ("as-root", lambda root: ["--user=0"] if root else ["--user="+str(os.getuid())]),
      # Anarchistic permissions
      ("privileged", lambda p: ["--privileged"] if p else [])])
-  
+
+
   def getCommand(self,args):
     """
     Returns the command required to run the subuser as a list of string arguments.
