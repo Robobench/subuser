@@ -77,11 +77,12 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
     while True:
         if os.path.exists("/dev/nvidia%i"%(cardInd)):
             graphicsStr = "/dev/nvidia%i"%(cardInd)
-            graphicsArgs += ["--dev=%s:%s"%(graphicsStr,graphicsStr)]
+            graphicsArgs += ["--device=%s"%(graphicsStr)]
             cardInd += 1
         else:
             break
-
+    graphicsArgs += ["--device=/dev/nvidiactl"]
+    graphicsArgs += ["-e","QT_GRAPHICSSYSTEM=native"] 
     return graphicsArgs
 
   def getPortArgs(self, ports):
