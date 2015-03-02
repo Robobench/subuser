@@ -128,7 +128,7 @@ class DockerDaemon(subuserlib.classes.userOwnedObject.UserOwnedObject):
       'forcerm': forceRm
       }
     if tag:
-      queryParameters["tag"] = tag
+      queryParameters["t"] = tag
     queryParametersString = urllib.urlencode(queryParameters)
     excludePatterns = []
     if directoryWithDockerfile:

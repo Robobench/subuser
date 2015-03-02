@@ -1,6 +1,6 @@
 #/bin/bash
 host_descriptor_file=/subuser/hostdata/host_descriptor.json
-nvidia_version=`cat $host_descriptor_file | grep nvidia | awk '{print $2}'`
+nvidia_version=`cat $host_descriptor_file | grep nvidia | awk '{print $3}'`
 nvidia_bin=/subuser/hostdata/nvidia-driver.run
 
 if test ! -f $nvidia_bin; then

@@ -34,7 +34,14 @@ def runReadyImageScripts(imageId):
     return dockerfileContents
 
 def buildRunReadyImageForSubuser(subuserToRun):
-    imageId = subuserToRun.getUser().getDockerDaemon().build(os.path.dirname(robobenchlib.paths.getRobobenchHostDataCacheDir()),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun))
+    """
 
-    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=False,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(imageId))
+    :param subuserToRun: The subuser image to run
+    :type: subuserToRun: subuserlib.subuser.Subuser
+    :return:
+    """
+    repoName = "subuser-%s"%(subuserToRun.getName())
+    imageId = subuserToRun.getUser().getDockerDaemon().build(os.path.dirname(robobenchlib.paths.getRobobenchHostDataCacheDir()),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun),tag='%s:%s'%(repoName,'hostdata-step'))
+
+    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=False,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(imageId),tag='%s:%s'%(repoName,'scripts-step'))
     return imageId

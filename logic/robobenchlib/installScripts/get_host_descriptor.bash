@@ -19,6 +19,6 @@ mkdir -p $1
 host_descriptor_file=$1/host_descriptor.json
 
 echo "{"> $host_descriptor_file
-echo '"nvidia": "' $nvidia_version'"' >> $host_descriptor_file
-echo ',"xorg": "' $xorg_version '"' >> $host_descriptor_file
+echo '"nvidia": "' $nvidia_version ' "' >> $host_descriptor_file
+echo ',"xorg": "' $xorg_version ' "' >> $host_descriptor_file
 echo "}" >>  $host_descriptor_file

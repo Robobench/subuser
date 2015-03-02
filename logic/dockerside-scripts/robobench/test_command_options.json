@@ -1,0 +1,14 @@
+{
+  "command_options" : 
+     [{
+	"command" : "/home/tester/Dev/pr2_im_ws/pr2_im_launch.sh",
+        "name" : "grasping_demo",
+        "description": "The pr2 grasping an object a soda can on a table using the interactive manipulation table.",
+	"tags": ["demo"] 
+     }, {
+	"command" : "/home/tester/Dev/pr2_im_ws/pr2_im_nav.sh",
+        "name" : "nav_demo",
+        "description": "The pr2 navigating through a hallway.",
+	"tags": ["demo"]
+   }]    
+}

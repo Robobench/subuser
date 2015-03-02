@@ -61,9 +61,10 @@ def installFromSubuserImagefile(imageSource, useCache=False,parent=None):
   """
   Returns the Id of the newly installed image.
   """
+  repoName = "subuser-%s"%(imageSource.getName())
   dockerFileContents = imageSource.generateDockerfileContents(parent=parent)
   dockerImageDir = os.path.join(imageSource.getSourceDir(),"docker-image")
-  imageId = imageSource.getUser().getDockerDaemon().build(directoryWithDockerfile=dockerImageDir,rm=True,useCache=useCache,dockerfile=dockerFileContents)
+  imageId = imageSource.getUser().getDockerDaemon().build(directoryWithDockerfile=dockerImageDir,rm=True,useCache=useCache,dockerfile=dockerFileContents,tag='%s:%s'%(repoName,'base'))
   return imageId
 
 def installImage(imageSource, useCache=False,parent=None):

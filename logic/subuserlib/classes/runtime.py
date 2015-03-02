@@ -46,7 +46,8 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
     return [
       "-i",
       "-t",
-      "--rm"]
+      "--rm",
+      "--entrypoint=/bin/bash"]
   
   def passOnEnvVar(self,envVar):
     """
@@ -77,6 +78,8 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
         if os.path.exists("/dev/nvidia%i"%(cardInd)):
             graphicsStr = "/dev/nvidia%i"%(cardInd)
             graphicsArgs += ["--dev=%s:%s"%(graphicsStr,graphicsStr)]
+            cardInd += 1
+        else:
             break
 
     return graphicsArgs
@@ -130,8 +133,15 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
     permissions = self.getSubuser().getPermissions()
     for permission, flagGenerator in permissionFlagDict.items():
       flags.extend(flagGenerator(permissions[permission]))
-  
-    return ["run"]+flags+[self.getRunreadyImageId()]+[self.getSubuser().getPermissions()["executable"]]+args
+
+    executableargs = [self.getSubuser().getPermissions()["executable"]]
+
+    if len(args) == 1 and args[0] == '--enter':
+        executableargs = []
+        print("Entering docker container")
+        args = []
+
+    return ["run"]+flags+[self.getRunreadyImageId()]+executableargs+args
   
   def getPrettyCommand(self,args):
     """
