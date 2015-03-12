@@ -2,7 +2,7 @@
 # This file should be compatible with both Python 2 and 3.
 # If it is not, please file a bug report.
 
-import pathConfig
+#import pathConfig
 #external imports
 #import
 #internal imports
@@ -15,7 +15,7 @@ def getInstalledImagesThatAreInUse(user):
   Returns {imageId(string) : InstalledImage}
   """
   installedImagesThatAreInUse = {} # {imageId : installedImage}
-  for _,subuser in user.getRegistry().getSubusers().items():
+  for _,subuser in user.getRegistry().getSubusers().items():    
     if subuser.getImageId():
       for inUseInstalledImage in subuserlib.installedImages.getImageLineage(user,subuser.getImageId()):
         installedImagesThatAreInUse[inUseInstalledImage.getImageId()] = inUseInstalledImage
@@ -27,8 +27,11 @@ def removeOldImages(user,dryrun):
   for installedImageId,installedImage in user.getInstalledImages().items():
     if not installedImageId in installedImagesThatAreInUse:
       if not dryrun:
-        installedImage.removeCachedRuntimes()
-        installedImage.removeDockerImage()
+        try:
+          installedImage.removeCachedRuntimes()
+          installedImage.removeDockerImage()
+        except:
+          print("removeOldImage failed to remove some image")
       elif dryrun:
         print(installedImage.getImageId() + " : " + installedImage.getImageSource().getIdentifier())
 
