@@ -33,6 +33,16 @@ def runReadyImageScripts(imageId):
     dockerfileContents += "USER %s \n"%(str(os.getuid()))
     return dockerfileContents
 
+def markImageInstalled(imageId, subuserToRun):
+    user = subuserToRun.getUser()
+    imageSource = subuserToRun.getImageSource()
+    lastUpdateTime = imageSource.getPermissions()["last-update-time"]
+    if lastUpdateTime == None:
+        lastUpdateTime = subuserlib.installTime.currentTimeString()
+
+    user.getInstalledImages()[imageId] = subuserlib.classes.installedImage.InstalledImage(user,imageId,imageSource.getName(),imageSource.getRepository().getName(),lastUpdateTime)
+    user.getInstalledImages().save()
+
 def buildRunReadyImageForSubuser(subuserToRun):
     """
 
@@ -41,7 +51,8 @@ def buildRunReadyImageForSubuser(subuserToRun):
     :return:
     """
     repoName = "subuser-%s"%(subuserToRun.getName())
-    imageId = subuserToRun.getUser().getDockerDaemon().build(os.path.dirname(robobenchlib.paths.getRobobenchHostDataCacheDir()),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun),tag='%s:%s'%(repoName,'hostdata-step'))
-
-    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=False,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(imageId),tag='%s:%s'%(repoName,'scripts-step'))
+    imageId = subuserToRun.getUser().getDockerDaemon().build(os.path.dirname(robobenchlib.paths.getRobobenchHostDataCacheDir()),quietClient=True,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageHostData(subuserToRun))
+    markImageInstalled(imageId, subuserToRun)
+    imageId = subuserToRun.getUser().getDockerDaemon().build(subuserlib.paths.getDockersideScriptsPath(),quietClient=False,useCache=True,forceRm=True,rm=True,dockerfile=runReadyImageScripts(imageId),tag='%s:%s'%(repoName,'run-ready'))
+    markImageInstalled(imageId, subuserToRun)
     return imageId
