@@ -57,17 +57,20 @@ def installFromBaseImage(imageSource):
       return imageProperties["Id"]
   cleanUpAndExitOnError(imageSource.getUser(),"Will not run install script.  Nothing to do.  Exiting.")
 
-def installFromSubuserImagefile(imageSource, useCache=False,parent=None):
+def installFromSubuserImagefile(imageSource, useCache=False,parent=None,subuserToBuild=None):
   """
   Returns the Id of the newly installed image.
   """
   repoName = "subuser-%s"%(imageSource.getName())
   dockerFileContents = imageSource.generateDockerfileContents(parent=parent)
   dockerImageDir = os.path.join(imageSource.getSourceDir(),"docker-image")
-  imageId = imageSource.getUser().getDockerDaemon().build(directoryWithDockerfile=dockerImageDir,rm=True,useCache=useCache,dockerfile=dockerFileContents,tag='%s:%s'%(repoName,'base'))
+  mainTagName = repoName
+  if subuserToBuild:
+    mainTagName = "subuser-%s"%(subuser.getName())
+  imageId = imageSource.getUser().getDockerDaemon().build(directoryWithDockerfile=dockerImageDir,forceRm=True,rm=True,useCache=useCache,dockerfile=dockerFileContents,tag='%s:%s'%(mainTagName,'base'))
   return imageId
 
-def installImage(imageSource, useCache=False,parent=None):
+def installImage(imageSource, useCache=False,parent=None,subuserToBuild=None):
   """
   Install a image by building the given ImageSource.
   Register the newly installed image in the user's InstalledImages list.
@@ -76,7 +79,7 @@ def installImage(imageSource, useCache=False,parent=None):
   imageSource.getUser().getRegistry().logChange("Installing "+imageSource.getName()+" ...")
   buildType = imageSource.getBuildType()
   if buildType == "SubuserImagefile":
-    imageId = installFromSubuserImagefile(imageSource,useCache=useCache,parent=parent)
+    imageId = installFromSubuserImagefile(imageSource,useCache=useCache,parent=parent,subuserToBuild=subuserToBuild)
   elif buildType == "BuildImage.sh":
     imageId = installFromBaseImage(imageSource)
   else:
@@ -112,13 +115,13 @@ def getImageSourceLineage(imageSource):
   else:
     return [imageSource]
 
-def installLineage(imageSourceLineage,parent=None):
+def installLineage(imageSourceLineage,parent=None,subuserToBuild=None):
   """
   Install the lineage of image sources.
   Return the image id of the final installed image.
   """
   for imageSource in imageSourceLineage:
-    parent = installImage(imageSource,parent=parent)
+    parent = installImage(imageSource,parent=parent,subuserToBuild=None)
   return parent
 
 def doImagesMatch(installedImage,imageSource):
@@ -176,7 +179,7 @@ def ensureSubuserImageIsInstalledAndUpToDate(subuser, useCache=False):
     imageSource = sourceLineage.pop(0)
     latestInstalledImage = imageSource.getLatestInstalledImage()
     if not latestInstalledImage or not isInstalledImageUpToDate(latestInstalledImage):
-      subuser.setImageId(installLineage([imageSource]+sourceLineage,parent=parentId))
+      subuser.setImageId(installLineage([imageSource]+sourceLineage,parent=parentId, subuserToBuild=subuser))
       subuser.getUser().getRegistry().logChange("Installed new image for subuser "+subuser.getName())
       return
     parentId=latestInstalledImage.getImageId()
