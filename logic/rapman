@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+# This file should be compatible with both Python 2 and 3.
+# If it is not, please file a bug report.
+
+#internal imports
+import sys,os,subprocess
+#external imports
+import subuserlib
+import subuserlib.subuser
+import subuserlib.classes.dockerDaemon
+import json
+import subuserlib.removeOldImages
+import robobenchlib
+import urllib
+
+def printHelp():
+  print("Help is not yet implemented")
+  
+  # for command in subuserlib.commands.getSubuserCommands():
+  #   print(command)
+  # print("for more info about each option use: subuser <option> -h")
+
+
+
+def cacheDependencies():
+  scriptDir = robobenchlib.paths.getRobobenchInstallScriptDir()
+  scriptPath=os.path.join(scriptDir, "download_gpu.bash")  
+  cacheDir = robobenchlib.paths.getRobobenchHostDataCacheDir()
+  
+  hostDescriptorPath = os.path.join(cacheDir,'host_descriptor.json')
+  driverPath = os.path.join(cacheDir,'driver.run')
+
+  args = ["bash", scriptPath, hostDescriptorPath, driverPath]
+  subuserlib.subprocessExtras.subprocessCallPlus(args)
+
+
+def addApp(args):
+  name = args[1]
+  user = subuserlib.classes.user.User()
+  imageSourceId = args[2]
+  subuserlib.subuser.add(user, name, imageSourceId)
+  
+
+def listImages():
+  filter='subuser'
+  print("Images installed by rapman:")
+  daemon = subuserlib.classes.dockerDaemon.DockerDaemon(subuserlib.classes.user.User())
+  daemon.getConnection().request("GET", "/images/json")
+  response = daemon.getConnection().getresponse()
+  jsonized_responses = json.loads(response.read())
+  filtered_responses = []
+  for j in jsonized_responses:
+    if [r for r in j['RepoTags'] if filter in r]:
+      filtered_responses.append(j)
+  for f in filtered_responses:
+    print('%s\n'%(f))
+
+
+def removeApp(args):
+  name = args[1]
+  user = subuserlib.classes.user.User()
+  try:
+    subuserlib.subuser.remove(user, name)
+  except:
+    "rapman app named %s doesn't exist"%(name)
+  subuserlib.removeOldImages.removeOldImages(user, False)
+    
+  return
+
+def runApp(args):
+  subuserName = args[1]
+  argsToPassToImage = args[2:]
+
+  user = subuserlib.classes.user.User()
+  if subuserName in user.getRegistry().getSubusers():
+    user.getRegistry().getSubusers()[subuserName].getRuntime(os.environ).run(argsToPassToImage)
+  else:
+    sys.exit(subuserName + " not found.\n"+helpString)
+
+
+def getContainers(status_filter=''):
+  daemon = subuserlib.classes.dockerDaemon.DockerDaemon(subuserlib.classes.user.User())
+  queryParameters = {
+    'all': True
+    }
+  queryParametersString = urllib.urlencode(queryParameters)
+  
+  image_filter='jonweisz'
+  daemon.getConnection().request("GET", "/containers/json?%s"%(queryParametersString))
+  response = daemon.getConnection().getresponse()
+  jsonized_responses = json.loads(response.read())
+  filtered_responses = []
+  for j in jsonized_responses:
+    if image_filter in j['Image'] and status_filter in j['Status']:
+      filtered_responses.append(j)
+  for f in filtered_responses:
+    print('%s\n'%(f))
+  
+  return filtered_responses
+
+def cleanContainers():
+  status_filter = 'Exited'
+  finishedAppContainers = getContainers(status_filter)
+  for app in finishedAppContainers:
+    requestString = "/containers/%s"%(app['Id'])
+    print requestString
+    daemon = subuserlib.classes.dockerDaemon.DockerDaemon(subuserlib.classes.user.User())
+    daemon.getConnection().request("DELETE", requestString)
+    while (True):
+      try:
+        response = daemon.getConnection().getresponse()
+        print response.status
+        break
+      except subuserlib.classes.dockerDaemon.httplib.ResponseNotReady as e:
+        print("Exception with %s"%(app['Id']))
+        
+
+
+
+
+def listApps():
+  user = subuserlib.classes.user.User()
+  print("The following apps are registered.")
+  for name,subuser in user.getRegistry().getSubusers().items():
+    subuser.describe()
+
+
+def clearApps():
+  user = subuserlib.classes.user.User()
+  for _,subuser in user.getRegistry().getSubusers().items():
+    subuserlib.subuser.remove(user, subuser.getName())
+  subuserlib.removeOldImages.removeOldImages(user, False)
+
+def main():
+  if len(sys.argv) < 2 or sys.argv[1] == "help" or sys.argv[1] == "--help" or sys.argv[1] == "-h":
+    printHelp()
+    sys.exit()
+
+
+  if sys.argv[1] == "add":
+    addApp(sys.argv[1:])
+    
+  if sys.argv[1] == "remove":
+    removeApp(sys.argv[1:])
+                  
+  if sys.argv[1] == "clear":
+    clearApps()
+              
+  if sys.argv[1] == "run":
+    runApp(sys.argv[1:])
+
+  if sys.argv[1] == "list-apps":
+    listApps()
+
+  if sys.argv[1] == "list-images":
+    listImages()
+  
+  if sys.argv[1] == "cache-dependencies":
+    cacheDependencies()
+
+  if sys.argv[1] == "clear-containers":
+    clearContainers()
+
+
+if __name__ == "__main__":
+  main()
+
