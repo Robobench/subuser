@@ -125,6 +125,12 @@ def listApps():
     subuser.describe()
 
 
+def listAvailableApps():
+  for repoName,repository in user.getRegistry().getRepositories().items():
+    print("Images available for instalation from the repo: " + repoName)
+    for _,imageSource in repository.items():
+      imageSource.describe()
+
 def clearApps():
   user = subuserlib.classes.user.User()
   for _,subuser in user.getRegistry().getSubusers().items():
@@ -154,6 +160,9 @@ def main():
 
   if sys.argv[1] == "list-installed-images":
     listImages()
+
+  if sys.argv[1] == "list-available-apps":
+    listAvailableApps()
   
   if sys.argv[1] == "cache-dependencies":
     cacheDependencies()
