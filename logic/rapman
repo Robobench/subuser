@@ -152,7 +152,7 @@ def main():
   if sys.argv[1] == "list-apps":
     listApps()
 
-  if sys.argv[1] == "list-images":
+  if sys.argv[1] == "list-installed-images":
     listImages()
   
   if sys.argv[1] == "cache-dependencies":
