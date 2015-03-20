@@ -99,6 +99,28 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
       homeArgs = ["-v="+self.getSubuser().getHomeDirOnHost()+":"+self.getSubuser().getDockersideHome()+":rw","-e","HOME="+self.getSubuser().getDockersideHome() ]
     return homeArgs
 
+  def setupX11Access(self, xauthFilename):
+    import subprocess 
+
+    """ Make sure the AUTH exists -- Pythonic "touch" """    
+    with open(xauthFilename, 'a'):
+      os.utime(xauthFilename, None)
+    
+    display=os.environ['DISPLAY']
+      
+    args="xauth nlist %s | sed -e 's/^..../ffff/' | xauth -f %s nmerge -"%(display, xauthFilename)
+    p = subprocess.Popen(args , shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print p.stdout.read()
+    
+  def getX11Args(self):
+    socketFilename="/tmp/.X11-unix"
+    xauthFilename="/tmp/.docker.xauth"
+    
+    self.setupX11Access(xauthFilename)
+    args = ["-v=%s:%s"%(socketFilename, socketFilename), "-v=%s:%s"%(xauthFilename, xauthFilename)]
+    args += ["-e","DISPLAY=unix"+os.environ['DISPLAY'], "-e", "XAUTHORITY=%s"%(xauthFilename)]
+    return args
+
   def getPermissionFlagDict(self):
     """
     This is a dictionary mapping permissions to functions which when given the permission's values return docker run flags.
@@ -116,7 +138,7 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
      ("allow-network-access", lambda p: ["--net=bridge","--dns=8.8.8.8"] if p else ["--net=none"]),
      ("ports", lambda ports: self.getPortArgs(ports) if ports else []),
      # Liberal permissions
-     ("x11", lambda p: ["-e","DISPLAY=unix"+os.environ['DISPLAY'],"-v=/tmp/.X11-unix:/tmp/.X11-unix:rw"] if p else []),
+      ("x11", lambda p: self.getX11Args() if p else []),
      ("graphics-card", lambda p: self.getGraphicsArgs() if p else []),
       ("access-host-docker", lambda p: ["--volume=/var/run/docker.sock:/subuser/host.docker.sock -e DOCKER_HOST=/subuser/host.docker.sock"]),
      ("serial-devices", lambda sd: ["--device=/dev/"+device for device in self.getSerialDevices()] if sd else []),
