@@ -118,6 +118,7 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
      # Liberal permissions
      ("x11", lambda p: ["-e","DISPLAY=unix"+os.environ['DISPLAY'],"-v=/tmp/.X11-unix:/tmp/.X11-unix:rw"] if p else []),
      ("graphics-card", lambda p: self.getGraphicsArgs() if p else []),
+      ("access-host-docker", lambda p: ["--volume=/var/run/docker.sock:/subuser/host.docker.sock -e DOCKER_HOST=/subuser/host.docker.sock"]),
      ("serial-devices", lambda sd: ["--device=/dev/"+device for device in self.getSerialDevices()] if sd else []),
      ("system-dbus", lambda dbus: ["--volume=/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"] if dbus else []),
      ("as-root", lambda root: ["--user=0"] if root else ["--user="+str(os.getuid())]),

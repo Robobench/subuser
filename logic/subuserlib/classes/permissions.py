@@ -92,9 +92,11 @@ class Permissions(collections.OrderedDict,subuserlib.classes.userOwnedObject.Use
         print(" Can talk to the system dbus daemon.")
       if self["use-host-descriptor"]:
           print(" Will get information about the X11, GPU, and other information from the host and make sure the client is compatible")
-    anarchisticPermissions = ["privileged"]
+    anarchisticPermissions = ["privileged", "access-host-docker"]
     if areAnyOfThesePermitted(anarchisticPermissions):
       print("WARNING: this subuser has full access to your system when run.")
       if self["privileged"]:
         print(" Has full access to your system.  Can even do things as root outside of its container.")
+      if self["access-host-docker"]:
+        print(" Has access to host docker - which may allow arbitrary code execution")
 

@@ -35,6 +35,7 @@ permissionDefaults = {
  ,"x11": False
  ,"graphics-card": False
  ,"use-host-descriptor": False
+ ,"access-host-docker": False
  ,"serial-devices":False
  ,"system-dbus": False
  ,"as-root": False
