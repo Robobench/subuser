@@ -126,7 +126,8 @@ def listApps():
 
 
 def listAvailableApps():
-  for repoName,repository in user.getRegistry().getRepositories().items():
+ user = subuserlib.classes.user.User() 
+ for repoName,repository in user.getRegistry().getRepositories().items():
     print("Images available for instalation from the repo: " + repoName)
     for _,imageSource in repository.items():
       imageSource.describe()
