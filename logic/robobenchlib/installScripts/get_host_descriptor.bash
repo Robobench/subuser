@@ -7,6 +7,8 @@ nvidia_version=0
 ati_version=0
 host_descriptor_file=$1/host_descriptor.json
 
+mkdir -p $1
+
 # Get current xorg version
  xorg_version=$(xdpyinfo | grep "X.Org version" | awk '{print $3}')
 
