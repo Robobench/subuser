@@ -70,12 +70,14 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
 
   def getGraphicsArgs(self):
     graphicsArgs = []
+    atiArgs = []
     cardInd = 0
     graphicsArgs += ["--device=/dev/dri/"+device for device in os.listdir("/dev/dri")]
     
     # Get NVidia devices
     nvidiaArgs = ["--device=/dev/" + device for device in os.listdir("/dev") if "nvidia" in device]
-    atiArgs = ["--device=/dev/ati/" + device for device in os.listdir("/dev/ati")]
+    if os.path.isdir("/dev/ati"):
+      atiArgs = ["--device=/dev/ati/" + device for device in os.listdir("/dev/ati")]
 
     print nvidiaArgs
     print atiArgs
