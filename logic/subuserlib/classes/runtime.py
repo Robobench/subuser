@@ -75,7 +75,9 @@ class Runtime(subuserlib.classes.userOwnedObject.UserOwnedObject):
     
     # Get NVidia devices
     nvidiaArgs = ["--device=/dev/" + device for device in os.listdir("/dev") if "nvidia" in device]
-    atiArgs = ["--device=/dev/ati/" + device for device in os.listdir("/dev/ati")]
+    atiArgs = []
+    if os.access("/dev/ati", os.F_OK | os.R_OK):
+      atiArgs = ["--device=/dev/ati/" + device for device in os.listdir("/dev/ati")]
 
     print nvidiaArgs
     print atiArgs
