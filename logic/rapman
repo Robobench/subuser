@@ -78,6 +78,20 @@ def runApp(args):
     sys.exit(subuserName + " not found.\n"+helpString)
 
 
+def dryRunApp(args):
+  subuserName = args[1]
+  argsToPassToImage = args[2:]
+
+  user = subuserlib.classes.user.User()
+  if subuserName in user.getRegistry().getSubusers():
+    subuser = user.getRegistry().getSubusers()[subuserName]
+    print("The image will be prepared using the Dockerfile:")
+    print(subuserlib.runReadyImages.generateImagePreparationDockerfile(subuser))
+    print("The command to launch the image is:")
+    print(''.join(subuser.getRuntime(os.environ).getPrettyCommand(argsToPassToImage)))
+  else:
+    sys.exit(subuserName + " not found.\n"+helpString)
+
 def getContainers(status_filter=''):
   daemon = subuserlib.classes.dockerDaemon.DockerDaemon(subuserlib.classes.user.User())
   queryParameters = {
@@ -155,6 +169,9 @@ def main():
               
   if sys.argv[1] == "run":
     runApp(sys.argv[1:])
+
+  if sys.argv[1] == "dry-run":
+    dryRunApp(sys.argv[1:])
 
   if sys.argv[1] == "list-apps":
     listApps()
