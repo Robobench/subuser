@@ -43,7 +43,6 @@ To learn how to become a member of the docker group please watch this video: <ht
 def runDocker(args,cwd=None):
   """ Run docker with the given command line arguments. """
   subprocessArgs = [getAndVerifyDockerExecutable()]+args
-  print(subprocessArgs)
   return subuserlib.subprocessExtras.subprocessCallPlus(subprocessArgs,cwd)
 
 def runDockerAndExitIfItFails(args,cwd=None):
